@@ -33,6 +33,10 @@ print(q_table)
 EPOCHS = 20000
 ALPHA = 0.8
 GAMMA = 0.95
+epsilon = 1.0
+max_epsilon = 1.0
+min_epsilon = 0.0
+decay = 0.001
 
 for step in range(500):
     env.render()
