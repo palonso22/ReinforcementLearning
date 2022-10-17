@@ -38,10 +38,26 @@ max_epsilon = 1.0
 min_epsilon = 0.0
 decay = 0.001
 
-for step in range(500):
+def epsilon_greedy_action_selection(epsilon, q_table, discrete_state):
+    random_number = np.random.random()
+
+    # explotaition
+
+    if random_number > epsilon:
+        state_row = q_table[discrete_state,:]
+        return np.argmax(state_row)
+
+    # exploration    
+    else:
+        return env.action_space.sample()
+
+
+def compute_next_q_value(old_q_value, reward, next_optimal_q_value):
+    return old_q_value + ALPHA * (reward, + GAMMA * next_optimal_q_value - old_q_value)
+for step in range(5):
     env.render()
     action = env.action_space.sample()
-    observation, reward, done, info = env.step(action)    
+    observation, reward, done, info, _ = env.step(action)    
     time.sleep(0.3)
     os.system('clear')
     if done:
