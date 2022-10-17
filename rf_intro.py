@@ -28,15 +28,14 @@ state_size = env.observation_space.n
 
 q_table = np.zeros([state_size, action_size])
 
-print(q_table)
-
 EPOCHS = 20000
 ALPHA = 0.8
 GAMMA = 0.95
 epsilon = 1.0
 max_epsilon = 1.0
 min_epsilon = 0.0
-decay = 0.001
+decay_rate = 0.001
+log_interval = 1000
 
 def epsilon_greedy_action_selection(epsilon, q_table, discrete_state):
     random_number = np.random.random()
@@ -53,14 +52,48 @@ def epsilon_greedy_action_selection(epsilon, q_table, discrete_state):
 
 
 def compute_next_q_value(old_q_value, reward, next_optimal_q_value):
-    return old_q_value + ALPHA * (reward, + GAMMA * next_optimal_q_value - old_q_value)
-for step in range(5):
-    env.render()
-    action = env.action_space.sample()
-    observation, reward, done, info, _ = env.step(action)    
-    time.sleep(0.3)
-    os.system('clear')
-    if done:
-        env.reset()
+     return old_q_value + ALPHA * (reward + GAMMA * next_optimal_q_value - old_q_value)
+
+
+def reduce_epsilon(epsilon, epoch):
+    return min_epsilon + (max_epsilon-min_epsilon)*np.exp(- decay_rate * epoch)
+
+
+rewards = []
+
+for episode in range(EPOCHS):
+
+    state = env.reset()
+    done = False
+    total_rewards = 0
+
+    while not done:
+
+        action = epsilon_greedy_action_selection(epsilon, q_table, state)
+
+        new_state, reward, done, info = env.step(action)
+
+        old_q_value = q_table[state, action]
+
+        next_optimal_q_value = np.max(q_table[new_state, :])
+
+        next_q = compute_next_q_value(old_q_value, reward, next_optimal_q_value)
+
+        q_table[state, action] = next_q
+
+        total_rewards += reward
+
+        state = new_state
+
+        
+    
+    epsilon = reduce_epsilon(epsilon, episode)
+
+    rewards.append(reward)
+
+    if episode % log_interval == 0:
+        print(f"rewards:{np.sum(rewards)}")
+
+
 
 env.close()    
