@@ -4,6 +4,7 @@ import gym
 import time
 import os
 
+
 from gym.envs.registration import register
 
 env_name = 'FrozenLakeNotSlippery-v0'
@@ -61,6 +62,14 @@ def reduce_epsilon(epsilon, epoch):
 
 rewards = []
 
+fig = plt.figure()
+ax = fig.add_subplot(111)
+plt.ion()
+fig.canvas.draw()
+epoch_plot_tracker = []
+total_reward_plot_tracker = []
+
+
 for episode in range(EPOCHS):
 
     state = env.reset()
@@ -89,11 +98,26 @@ for episode in range(EPOCHS):
     
     epsilon = reduce_epsilon(epsilon, episode)
 
-    rewards.append(reward)
+    rewards.append(total_rewards)
+
+    total_reward_plot_tracker.append(np.sum(rewards))
+    epoch_plot_tracker.append(episode)
+
 
     if episode % log_interval == 0:
-        print(f"rewards:{np.sum(rewards)}")
+        ax.clear()
+        ax.plot(epoch_plot_tracker, total_reward_plot_tracker)
+        fig.canvas.draw()
 
 
+# state = env.reset()
+# for step in range(100):    
+#     env.render()
+#     action = np.argmax(q_table[state, :])
+#     state, reward, done, info = env.step(action)
+#     time.sleep(1)
+#     os.system('clear')
+#     if done:
+#         break
 
-env.close()    
+env.close()
